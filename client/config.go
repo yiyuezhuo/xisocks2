@@ -9,10 +9,11 @@ import (
 )
 
 type Config struct {
-	Token     string
-	LocalIp   string
-	LocalPort int
-	ProxyURL  string
+	Token             string
+	LocalIp           string
+	LocalPort         int
+	ProxyURL          string
+	UseConnectionPool bool
 }
 
 func loadConfig(configPath string) Config {
@@ -31,7 +32,8 @@ func loadConfig(configPath string) Config {
 		"Token:", config.Token,
 		"LocalIp:", config.LocalIp,
 		"LocalPort:", config.LocalPort,
-		"ProxyURL:", config.ProxyURL)
+		"ProxyURL:", config.ProxyURL,
+		"UseConnectionPool:", config.UseConnectionPool)
 
 	return config
 }

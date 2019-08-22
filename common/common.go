@@ -18,6 +18,7 @@ func Proxy(local_c net.Conn, remote_c *websocket.Conn) {
 	go func() {
 		for {
 			readLen, err := local_c.Read(buf)
+			fmt.Println("pipe", readLen, buf[:10])
 			if err != nil {
 				//io.Copy(local_c, remote_c)
 				if err == io.EOF {

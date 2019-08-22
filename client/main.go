@@ -16,9 +16,10 @@ import (
 
 var localAddr, token, proxyURL string
 var lenToken byte
+var useConnectionPool bool
 
 const BUFFER_SIZE = 8192
-const CONNECTION_POOL_SIZE = 16
+const CONNECTION_POOL_SIZE = 64
 
 var connection_pool_channel chan *websocket.Conn
 
@@ -32,6 +33,7 @@ func main() {
 	token = config.Token
 	lenToken = byte(len(config.Token))
 	proxyURL = config.ProxyURL
+	useConnectionPool = config.UseConnectionPool
 
 	l, err := net.Listen("tcp", localAddr) // l mean Listener
 	if err != nil {
@@ -42,9 +44,11 @@ func main() {
 	fmt.Println("Linsen to", localAddr)
 
 	// building connection pool(channel with )
-	connection_pool_channel = make(chan *websocket.Conn, CONNECTION_POOL_SIZE)
-	for i := 0; i < CONNECTION_POOL_SIZE; i++ {
-		go buildConnection()
+	if useConnectionPool {
+		connection_pool_channel = make(chan *websocket.Conn, CONNECTION_POOL_SIZE)
+		for i := 0; i < CONNECTION_POOL_SIZE; i++ {
+			go buildConnection(i)
+		}
 	}
 
 	for {
@@ -58,19 +62,19 @@ func main() {
 
 }
 
-func buildConnection() {
+func buildConnection(worker_id int) {
 	for {
 		// serial running to debug, lately we will introduce some "workers" to do it.
 		u := url.URL{Scheme: "wss", Host: proxyURL, Path: "/"}
 		remote_c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 		if err != nil {
 			//fmt.Println("Sleep 1 second to dial again", err)
-			//fmt.Println("Sleep 1 second to dial again")
+			fmt.Println("worker:", worker_id, "Sleep 1 second to dial again")
 			time.Sleep(1)
 			continue
 		}
 		connection_pool_channel <- remote_c
-		//fmt.Println("build a TLS connection to remote")
+		fmt.Println("worker:", worker_id, "build a TLS connection to remote")
 	}
 
 }
@@ -94,11 +98,19 @@ func handleRequest(conn net.Conn) {
 		return
 	}
 
-	remote_c := <-connection_pool_channel
-	//defer remote_c.Close()
+	var remote_c *websocket.Conn
+	//remote_c := <-connection_pool_channel
+	if useConnectionPool {
+		remote_c = <-connection_pool_channel
+	} else {
+		u := url.URL{Scheme: "wss", Host: proxyURL, Path: "/"}
+		remote_c, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
+		if err != nil {
+			fmt.Println("dial to proxy server fail", err)
+			return
+		}
+	}
 
-	// build xi handshake packet
-	//lenHost := len(host)
 	payload := buf[:readLen]
 
 	xi_header := common.XiHeader{
@@ -111,8 +123,11 @@ func handleRequest(conn net.Conn) {
 	//common.DisplayXiHeader(xi_header)
 	message_buff := common.BuildXiHandshake(xi_header)
 
-	//fmt.Println("message_buff:", len(message_buff), cap(message_buff), message_buff, string(message_buff))
+	//fmt.Println("Connect to", string(host))
 
+	//fmt.Println("message_buff:", len(message_buff), cap(message_buff), message_buff, string(message_buff))
+	//common.DisplayXiHeader(xi_header)
+	fmt.Println("message_buff len", len(message_buff))
 	err = remote_c.WriteMessage(websocket.BinaryMessage, message_buff)
 	if err != nil {
 		fmt.Println("xi handshake failed", err)
