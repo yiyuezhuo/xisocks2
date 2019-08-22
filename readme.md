@@ -27,3 +27,13 @@ So that you and GFW internet agent may find that a website is hosted in that url
 
 My personal interest is to show a sad panda to GFW internet agent, or you may launch a jupyter notebook server,
 which provide powerfull screen-like terminor.
+
+## Build
+
+Install `github.com/gorilla/websocket`
+
+Clone the project and `cd` into `$GOPATH/github.com/yiyuezhuo/`, then
+
+```
+make
+```
