@@ -1,90 +1,26 @@
 package main
 
 import (
-	"bytes"
-	"flag"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
-	"strconv"
 	"unicode/utf8"
-
-	"github.com/gorilla/websocket"
-	"github.com/yiyuezhuo/xisocks2/common"
-	//"github.com/yiyuezhuo/xisocks2/common"
 )
 
-var listenAddr, forwardAddr, token string
-var upgrader = websocket.Upgrader{} // upgrader := websocket.Upgrader{} can't be used outside a function
+func forward(forwardAddr string, w http.ResponseWriter, req *http.Request) {
+	resp, err := http.Get("http://" + forwardAddr)
+	if err != nil {
+		log.Println("forward get fail:", err)
+	}
 
-var configPath = flag.String("config", "config-server.json", "config path")
-
-func main() {
-	fmt.Println("start server")
-	flag.Parse()
-
-	config := loadConfig(*configPath)
-
-	listenAddr = config.ListenIp + ":" + strconv.Itoa(config.ListenPort)
-	forwardAddr = config.ForwardIp + ":" + strconv.Itoa(config.ForwardPort)
-	token = config.Token
-
-	fmt.Println("Lisnten to:", listenAddr, "Forward suspicious requests to:", forwardAddr)
-
-	http.HandleFunc("/", home)
-
-	log.Fatal(http.ListenAndServeTLS(listenAddr, config.Crt, config.Key, nil))
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	w.Header().Set("Content-Length", resp.Header.Get("Content-Length"))
+	io.Copy(w, resp.Body)
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
-	//fmt.Println("A request is detected")
-
-	if !tokenListContainsValue(r.Header, "Connection", "upgrade") {
-		log.Println("forward to", forwardAddr)
-		forward(w, r)
-	}
-
-	c, err := upgrader.Upgrade(w, r, nil) // upgrade from http to websocket connection(c)
-	if err != nil {
-		log.Println("Error upgrade:", err)
-		//forward(w, r)
-		return
-	}
-	defer c.Close()
-
-	_, message, err := c.ReadMessage()
-	if err != nil {
-		log.Println("Error c.ReadMessage:", err)
-		//forward(w, r)
-		return
-	}
-
-	xi_header, err := common.ParseXiHandshake(message, token)
-	if err != nil {
-		fmt.Println("Xi Handshake failed", err, "Forward it to", forwardAddr)
-		//forward(w, r)
-		return
-	}
-
-	//common.DisplayXiHeader(*xi_header)
-
-	//fmt.Println(xi_header)
-
-	target_conn, err := net.Dial("tcp", string(xi_header.Host))
-	if err != nil {
-		fmt.Println("Dial fail", err)
-		return
-	}
-
-	target_conn.Write(xi_header.Payload)
-
-	common.Proxy(target_conn, c)
-}
-
-func forward(w http.ResponseWriter, req *http.Request) {
+/*
+func forward2(forwardAddr string, w http.ResponseWriter, req *http.Request) {
 	// https://stackoverflow.com/questions/34724160/go-http-send-incoming-http-request-to-an-other-server-using-client-do
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -123,8 +59,9 @@ func forward(w http.ResponseWriter, req *http.Request) {
 	//resp.Body.Close()
 
 }
+*/
 
-// Follwing code are brought from github.com/gorilla/websocket/util since it's a private function
+// Follwing codes are brought from github.com/gorilla/websocket/util since they're private function
 func tokenListContainsValue(header http.Header, name string, value string) bool {
 
 headers:

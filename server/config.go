@@ -30,6 +30,7 @@ func loadConfig(configPath string) Config {
 	if err != nil {
 		log.Panic(err)
 	}
+	/*
 	fmt.Println(
 		"Token:", config.Token,
 		"ListenIp:", config.ListenIp,
@@ -38,6 +39,8 @@ func loadConfig(configPath string) Config {
 		"ForwardPort:", config.ForwardPort,
 		"Crt:", config.Crt,
 		"Key:", config.Key)
+	*/
+	fmt.Printf("%#v \n", config)
 
 	return config
 }

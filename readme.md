@@ -1,4 +1,4 @@
-# Yet a another toy proxy
+# Yet another toy proxy
 
 Yet another toy proxy which provide authentication and removing verbose handshake procedure as much as possible, compared to [previous version](https://github.com/yiyuezhuo/xisocksGo).
 
@@ -30,10 +30,14 @@ which provide powerfull screen-like terminor.
 
 ## Build
 
-Install `github.com/gorilla/websocket`
+```
+$ go get github.com/gorilla/websocket
+$ go get github.com/yiyuezhuo/xisocks2
+```
 
-Clone the project and `cd` into `$GOPATH/github.com/yiyuezhuo/`, then
+Enter project root
 
 ```
 make
 ```
+

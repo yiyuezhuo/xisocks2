@@ -28,7 +28,7 @@ func ParseXiHandshake(buf []byte, token string) (xi_header *XiHeader, err error)
 
 	//fmt.Println("Compare:", string(Token), "vs", token)
 	if string(Token) != token {
-		fmt.Println("Compare:", string(Token), "vs", token, "token reject")
+		fmt.Printf("Compare: %q vs %q -> token reject\n", string(Token), token)
 		return nil, fmt.Errorf("token reject")
 	}
 
