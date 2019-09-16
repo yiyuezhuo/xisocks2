@@ -2,6 +2,6 @@
     "LocalIp":"127.0.0.1",
     "LocalPort":12342,
     "Token":"fuckgfw",
-    "ProxyURL":"example.xyz",
+    "ProxyURL":"yourhostname.xyz",
     "UseConnectionPool": false
 }

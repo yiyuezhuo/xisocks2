@@ -38,6 +38,22 @@ $ go get github.com/yiyuezhuo/xisocks2
 Enter project root
 
 ```
-make
+$ make
 ```
 
+## Usage in PC
+
+* Download respective version into your local computer(client) and VPS(server) from [release page](https://github.com/yiyuezhuo/xisocks2/releases).
+* In client, replace config-client.json item value corresponding to ProxyURL with your hostname such as "xisocks2.com", which have been "protected" by CDN such as cloudflare. Thus CCP internet cops can't find your real IP. 
+* See some TLS [tutorials](https://guide.v2fly.org/en_US/advanced/tls.html#register-a-domain) to get `server.crt` and `server.key` and placing them into server root.
+* In client, run `client.exe`(windows) or `./client`(linux)
+* In server, run `server.exe`(windows) or `./server`(linux)
+
+## Usage in Android
+
+In addtiontion to PC usage, the android version is just compiled using `GOARCH=arm64` and `GOOS=linux`. 
+No UI is provided, you can use 
+[termux](https://play.google.com/store/apps/details?id=com.termux&hl=en_US) 
+and 
+[Postern](https://play.google.com/store/apps/details?id=com.tunnelworkshop.postern&hl=en_US)
+to help you use `xisocks2` just like usage for other console-oriented applications such as `v2ray-core`. Note `Data Sniffer` in `Rule` in `Postern`should be enable.

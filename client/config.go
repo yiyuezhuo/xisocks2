@@ -28,12 +28,15 @@ func loadConfig(configPath string) Config {
 	if err != nil {
 		log.Panic(err)
 	}
+	/*
 	fmt.Println(
 		"Token:", config.Token,
 		"LocalIp:", config.LocalIp,
 		"LocalPort:", config.LocalPort,
 		"ProxyURL:", config.ProxyURL,
 		"UseConnectionPool:", config.UseConnectionPool)
+	*/
+	fmt.Printf("%#v\n", config);
 
 	return config
 }

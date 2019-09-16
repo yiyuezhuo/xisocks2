@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
-	"net"
 	"strconv"
 )
 
-func socks5_handshake(local_c net.Conn) (string, error) {
+func socks5_handshake(local_c io.ReadWriter) (string, error) {
+	// TODO: refactor buf using ioutil.ReadAll
 	buf := make([]byte, 2048)
 
 	//readLen, err := local_c.Read(buf)
