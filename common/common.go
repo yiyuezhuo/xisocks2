@@ -48,15 +48,15 @@ func Proxy(local_c net.Conn, remote_c *websocket.Conn) {
 			return
 		}
 		writeLen, err := local_c.Write(remote_buf)
-		if writeLen != len(remote_buf) {
-			fmt.Println("Write fail", writeLen, "vs", remote_buf)
-			return
-		}
 		if err != nil {
 			if err == io.EOF {
 				return
 			}
 			fmt.Println("local->proxyed error:", err)
+			return
+		}
+		if writeLen != len(remote_buf) {
+			fmt.Println("Write fail", writeLen, "vs", remote_buf)
 			return
 		}
 	}

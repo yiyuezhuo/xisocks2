@@ -3,5 +3,6 @@
     "LocalPort":12342,
     "Token":"fuckgfw",
     "ProxyURL":"yourhostname.xyz",
-    "UseConnectionPool": false
+    "UseConnectionPool": false,
+    "ResolveHTTP": true
 }
