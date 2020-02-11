@@ -3,7 +3,8 @@
     "ListenIp": "0.0.0.0",
     "ListenPort" : 443,
     "ForwardIP" : "127.0.0.1",
-    "ForwardPort" : 8081,
+    "ForwardPort" : 80,
     "Crt" : "server.crt",
-    "Key" : "server.key"
+    "Key" : "server.key",
+    "TLS": true
 }

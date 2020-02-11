@@ -2,7 +2,9 @@
     "LocalIp":"127.0.0.1",
     "LocalPort":12342,
     "Token":"fuckgfw",
-    "ProxyURL":"yourhostname.xyz",
+    "ProxyURL":"your_host.xyz",
+    "ProxyPort": 443,
     "UseConnectionPool": false,
-    "ResolveHTTP": true
+    "ResolveHTTP": true,
+    "TLS": true
 }

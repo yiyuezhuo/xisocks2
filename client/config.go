@@ -13,8 +13,10 @@ type Config struct {
 	LocalIp           string
 	LocalPort         int
 	ProxyURL          string
+	ProxyPort         int
 	UseConnectionPool bool
 	ResolveHTTP       bool
+	TLS               bool
 }
 
 func loadConfig(configPath string) Config {

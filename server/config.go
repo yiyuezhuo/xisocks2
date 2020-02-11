@@ -16,6 +16,7 @@ type Config struct {
 	ForwardPort int
 	Crt         string
 	Key         string
+	TLS         bool
 }
 
 func loadConfig(configPath string) Config {
@@ -31,14 +32,14 @@ func loadConfig(configPath string) Config {
 		log.Panic(err)
 	}
 	/*
-	fmt.Println(
-		"Token:", config.Token,
-		"ListenIp:", config.ListenIp,
-		"ListenPort:", config.ListenPort,
-		"ForwardIp", config.ForwardIp,
-		"ForwardPort:", config.ForwardPort,
-		"Crt:", config.Crt,
-		"Key:", config.Key)
+		fmt.Println(
+			"Token:", config.Token,
+			"ListenIp:", config.ListenIp,
+			"ListenPort:", config.ListenPort,
+			"ForwardIp", config.ForwardIp,
+			"ForwardPort:", config.ForwardPort,
+			"Crt:", config.Crt,
+			"Key:", config.Key)
 	*/
 	fmt.Printf("%#v \n", config)
 

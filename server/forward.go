@@ -11,6 +11,7 @@ func forward(forwardAddr string, w http.ResponseWriter, req *http.Request) {
 	resp, err := http.Get("http://" + forwardAddr)
 	if err != nil {
 		log.Println("forward get fail:", err)
+		//return
 	}
 
 	w.WriteHeader(http.StatusOK)

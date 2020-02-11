@@ -32,7 +32,12 @@ func main() {
 
 	http.HandleFunc("/", home)
 
-	log.Fatal(http.ListenAndServeTLS(listenAddr, config.Crt, config.Key, nil))
+	if config.TLS {
+		log.Fatal(http.ListenAndServeTLS(listenAddr, config.Crt, config.Key, nil))
+	} else {
+		log.Fatal(http.ListenAndServe(listenAddr, nil))
+	}
+
 }
 
 func homeWithError(w http.ResponseWriter, r *http.Request) error {

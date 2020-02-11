@@ -18,8 +18,11 @@ import (
 )
 
 var localAddr, token, proxyURL string
+var proxyPort int
 var lenToken byte
 var useConnectionPool, ResolveHTTP bool
+
+var proxyAddr string
 
 const BUFFER_SIZE = 8192
 const CONNECTION_POOL_SIZE = 64
@@ -36,8 +39,11 @@ func main() {
 	token = config.Token
 	lenToken = byte(len(config.Token))
 	proxyURL = config.ProxyURL
+	proxyPort = config.ProxyPort
 	useConnectionPool = config.UseConnectionPool
 	ResolveHTTP = config.ResolveHTTP
+
+	proxyAddr = proxyURL + ":" + strconv.Itoa(proxyPort)
 
 	l, err := net.Listen("tcp", localAddr) // l mean Listener
 	if err != nil {
@@ -61,7 +67,7 @@ func main() {
 			log.Panic(err)
 		}
 
-		go handleRequest(conn)
+		go handleRequest(conn, config)
 	}
 
 }
@@ -69,7 +75,7 @@ func main() {
 func buildConnection(worker_id int) {
 	for {
 		// serial running to debug, lately we will introduce some "workers" to do it.
-		u := url.URL{Scheme: "wss", Host: proxyURL, Path: "/"}
+		u := url.URL{Scheme: "wss", Host: proxyAddr, Path: "/"}
 		remote_c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 		if err != nil {
 			//fmt.Println("Sleep 1 second to dial again", err)
@@ -83,29 +89,9 @@ func buildConnection(worker_id int) {
 
 }
 
-func handleRequest(conn net.Conn) {
+func handleRequest(conn net.Conn, config Config) {
 	//defer conn.Close()
-
-	/*
-		remote_host, err := socks5_handshake(conn)
-
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		host := []byte(remote_host)
-
-		buf := make([]byte, BUFFER_SIZE)
-
-		readLen, err := conn.Read(buf)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		payload := buf[:readLen]
-	*/
+	// Close should be called in Proxy, but we should call it before any other return
 
 	remote_host, payload, err := local_handshake(conn)
 	host := []byte(remote_host)
@@ -115,10 +101,17 @@ func handleRequest(conn net.Conn) {
 	if useConnectionPool {
 		remote_c = <-connection_pool_channel
 	} else {
-		u := url.URL{Scheme: "wss", Host: proxyURL, Path: "/"}
+		var u url.URL
+		if config.TLS {
+			u = url.URL{Scheme: "wss", Host: proxyAddr, Path: "/"}
+		} else {
+			u = url.URL{Scheme: "ws", Host: proxyAddr, Path: "/"}
+		}
 		remote_c, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
 		if err != nil {
 			fmt.Println("dial to proxy server fail", err)
+			conn.Close()
+			remote_c.Close()
 			return
 		}
 	}
@@ -141,6 +134,8 @@ func handleRequest(conn net.Conn) {
 	err = remote_c.WriteMessage(websocket.BinaryMessage, message_buff)
 	if err != nil {
 		fmt.Println("xi handshake failed", err)
+		conn.Close()
+		remote_c.Close()
 		return
 	}
 
