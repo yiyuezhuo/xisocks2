@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/yiyuezhuo/xisocks2.svg?branch=master)](https://travis-ci.org/yiyuezhuo/xisocks2)
+[![Coverage Status](https://coveralls.io/repos/github/yiyuezhuo/xisocks2/badge.svg?branch=master)](https://coveralls.io/github/yiyuezhuo/xisocks2?branch=master)
+
+
 # Yet another toy proxy
 
 Yet another toy proxy which provide authentication and removing verbose handshake procedure as much as possible, compared to [previous version](https://github.com/yiyuezhuo/xisocksGo).
