@@ -29,6 +29,8 @@ const CONNECTION_POOL_SIZE = 64
 
 var connection_pool_channel chan *websocket.Conn
 
+var numSocks5Connected, numHTTPConnected int
+
 var configPath = flag.String("config", "config-client.json", "config path")
 
 func main() {
@@ -61,9 +63,14 @@ func main() {
 		}
 	}
 
+	numSocks5Connected = 0
+	numHTTPConnected = 0
+
 	for {
 		conn, err := l.Accept()
 		if err != nil {
+			fmt.Println("numSocks5Connected:", numSocks5Connected,
+				"numHTTPConnected", numHTTPConnected)
 			log.Panic(err)
 		}
 
@@ -111,7 +118,10 @@ func handleRequest(conn net.Conn, config Config) {
 		if err != nil {
 			fmt.Println("dial to proxy server fail", err)
 			conn.Close()
-			remote_c.Close()
+			fmt.Println("remote_c:", remote_c)
+			if remote_c != nil {
+				remote_c.Close() // Close
+			}
 			return
 		}
 	}
@@ -141,6 +151,8 @@ func handleRequest(conn net.Conn, config Config) {
 
 	//proxy(conn, remote_c)
 	common.Proxy(conn, remote_c)
+	conn.Close()
+	remote_c.Close()
 }
 
 func local_handshake(conn net.Conn) (remote_host string, payload []byte, err error) {
@@ -148,6 +160,9 @@ func local_handshake(conn net.Conn) (remote_host string, payload []byte, err err
 
 	if !ResolveHTTP {
 		remote_host, err = socks5_handshake(conn)
+		numSocks5Connected++
+		fmt.Println("numSocks5Connected: ", numSocks5Connected,
+			conn.RemoteAddr(), "->", conn.LocalAddr())
 	} else {
 		buf := make([]byte, 1)
 		conn.Read(buf)
@@ -156,8 +171,14 @@ func local_handshake(conn net.Conn) (remote_host string, payload []byte, err err
 
 		if buf[0] == 5 { // socks5
 			remote_host, err = socks5_handshake(is)
+			numSocks5Connected++
+			fmt.Println("numSocks5Connected ->", numSocks5Connected,
+				conn.RemoteAddr(), "->", conn.LocalAddr())
 		} else {
 			remote_host, req, err = http_handshake(is)
+			numHTTPConnected++
+			fmt.Println("numHTTPConnected ->", numHTTPConnected,
+				conn.RemoteAddr(), "->", conn.LocalAddr())
 		}
 	}
 
@@ -186,6 +207,12 @@ func local_handshake(conn net.Conn) (remote_host string, payload []byte, err err
 
 		payload = b.Bytes()
 	}
+
+	/*
+		if req != nil {
+			req.Body.Close()
+		}
+	*/
 
 	return remote_host, payload, nil
 
