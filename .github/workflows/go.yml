@@ -31,4 +31,9 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+      run: go build -v github.com/yiyuezhuo/xisocks2/client
+      run: go build -v github.com/yiyuezhuo/xisocks2/server
+    
+    - name: Test
+      run: go test -v -cover github.com/yiyuezhuo/xisocks2/client
+      run: go test -v -cover github.com/yiyuezhuo/xisocks2/server

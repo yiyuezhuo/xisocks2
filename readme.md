@@ -1,3 +1,4 @@
+![Go](https://github.com/yiyuezhuo/xisocks2/workflows/Go/badge.svg)
 [![Build Status](https://travis-ci.org/yiyuezhuo/xisocks2.svg?branch=master)](https://travis-ci.org/yiyuezhuo/xisocks2)
 [![Coverage Status](https://coveralls.io/repos/github/yiyuezhuo/xisocks2/badge.svg?branch=master)](https://coveralls.io/github/yiyuezhuo/xisocks2?branch=master)
 
