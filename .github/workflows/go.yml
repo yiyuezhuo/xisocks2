@@ -30,10 +30,12 @@ jobs:
             dep ensure
         fi
 
-    - name: Build
+    - name: Build Client
       run: go build -v github.com/yiyuezhuo/xisocks2/client
+    - name: Build Server
       run: go build -v github.com/yiyuezhuo/xisocks2/server
     
-    - name: Test
+    - name: Test Client
       run: go test -v -cover github.com/yiyuezhuo/xisocks2/client
+    - name: Test Server
       run: go test -v -cover github.com/yiyuezhuo/xisocks2/server
